@@ -10,6 +10,7 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import resumeRoutes from './routes/resume.js';
 import pdf from 'pdf-parse';
+import authRoutes from './routes/auth.js';
 
 // Validate critical environment variables
 const requiredEnvVars = ['JWT_SECRET', 'EMAIL_USER', 'EMAIL_PASSWORD'];
@@ -23,6 +24,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
+const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({
@@ -32,20 +34,51 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/resume-ai', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-}).then(() => {
-    console.log('Connected to MongoDB');
-}).catch((error) => {
-    console.error('MongoDB connection error:', error);
+// Database Connection Configuration
+const connectDB = async () => {
+  try {
+    // Validate MongoDB URI
+    if (!process.env.MONGODB_URI) {
+      throw new Error('MONGODB_URI is not defined in environment variables');
+    }
+
+    // Connection options for improved stability
+    const connectionOptions = {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    };
+
+    // Attempt connection
+    await mongoose.connect(process.env.MONGODB_URI, connectionOptions);
+
+    console.log('✅ MongoDB Connection Successful');
+    console.log('Connection Details:');
+    console.log(`- Host: ${mongoose.connection.host}`);
+    console.log(`- Database Name: ${mongoose.connection.db.databaseName}`);
+    console.log(`- Ready State: ${mongoose.connection.readyState}`);
+  } catch (error) {
+    console.error('❌ MongoDB Connection Failed:');
+    console.error('Error Details:', error.message);
+    
+    // Exit process with failure
+    process.exit(1);
+  }
+};
+
+// Connect to Database
+connectDB();
+
+// MongoDB Connection Event Listeners
+mongoose.connection.on('disconnected', () => {
+  console.warn('⚠️ MongoDB Disconnected. Attempting to reconnect...');
 });
 
-// Logging middleware
-app.use((req, res, next) => {
-    console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
-    next();
+mongoose.connection.on('error', (err) => {
+  console.error('❌ MongoDB Connection Error:', err);
+});
+
+mongoose.connection.on('reconnected', () => {
+  console.log('🔄 MongoDB Reconnected Successfully');
 });
 
 // Initialize Gemini AI
@@ -80,7 +113,7 @@ const model = genAI.getGenerativeModel({
 // Test routes
 app.get('/', (req, res) => {
     console.log('Root route hit');
-    res.send('Server is working!');
+    res.send('Resume Analysis Backend is running');
 });
 
 app.get('/test', (req, res) => {
@@ -114,14 +147,26 @@ app.post('/api/chat', async (req, res) => {
 });
 
 // Routes
-import authRouter from './routes/auth.js';
-app.use('/api/auth', authRouter);
+app.use('/api/auth', authRoutes);
 app.use('/api/resume', resumeRoutes);
 
-// Error handling
+// Health check endpoint
+app.get('/health', (req, res) => {
+  const isConnected = mongoose.connection.readyState === 1;
+  res.status(isConnected ? 200 : 500).json({
+    status: isConnected ? 'Healthy' : 'Disconnected',
+    mongoDBStatus: mongoose.connection.readyState,
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Error handling middleware
 app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({ error: 'Something went wrong!' });
+  console.error('Unhandled Error:', err);
+  res.status(500).json({ 
+    error: 'Internal Server Error',
+    message: err.message || 'Something went wrong'
+  });
 });
 
 // Handle 404
@@ -131,16 +176,16 @@ app.use((req, res) => {
 });
 
 // Start server
-const port = process.env.PORT || 3000;
-const server = app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
+const server = app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
     console.log('\nAvailable endpoints:');
-    console.log(`1. GET  http://localhost:${port}/      -> Test server`);
-    console.log(`2. GET  http://localhost:${port}/test  -> Test endpoint`);
-    console.log(`3. POST http://localhost:${port}/api/chat -> Gemini AI chat\n`);
-    console.log('To test the chat endpoint in Postman:');
+    console.log(`1. GET  http://localhost:${PORT}/      -> Test server`);
+    console.log(`2. GET  http://localhost:${PORT}/test  -> Test endpoint`);
+    console.log(`3. POST http://localhost:${PORT}/api/chat -> Gemini AI chat`);
+    console.log(`4. GET  http://localhost:${PORT}/health -> Health check`);
+    console.log('\nTo test the chat endpoint in Postman:');
     console.log('1. Set method to POST');
-    console.log('2. Use URL: http://localhost:3000/api/chat');
+    console.log('2. Use URL: http://localhost:5000/api/chat');
     console.log('3. Set Headers: Content-Type: application/json');
     console.log('4. Set Body (raw JSON):');
     console.log('   {');
@@ -148,18 +193,21 @@ const server = app.listen(port, () => {
     console.log('   }');
 });
 
+// Graceful shutdown
+process.on('SIGINT', async () => {
+  try {
+    await mongoose.connection.close();
+    console.log('MongoDB connection closed');
+    process.exit(0);
+  } catch (error) {
+    console.error('Error during graceful shutdown:', error);
+    process.exit(1);
+  }
+});
+
 // Handle server errors
 server.on('error', (error) => {
     console.error('Server error:', error);
-});
-
-// Handle process termination
-process.on('SIGTERM', () => {
-    console.log('SIGTERM received. Shutting down gracefully...');
-    server.close(() => {
-        console.log('Server closed.');
-        process.exit(0);
-    });
 });
 
 // Keep the process running
