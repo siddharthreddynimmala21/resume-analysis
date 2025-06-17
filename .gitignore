@@ -6,6 +6,7 @@ frontend/node_modules/
 
 # Environment files
 .env
+*.env
 backend/.env
 frontend/.env
 
@@ -36,6 +37,17 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+
+# Misc
+.pnp
+.pnp.js
+.eslintcache
+
+# Vercel
+.vercel
+
+# Render
+.render
 
 # Misc
 .pnp

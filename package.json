@@ -1,0 +1,28 @@
+{
+  "name": "resume-analysis",
+  "version": "1.0.0",
+  "description": "AI-powered resume analysis application",
+  "scripts": {
+    "start": "npm run start:backend & npm run start:frontend",
+    "start:backend": "cd backend && npm start",
+    "start:frontend": "cd frontend && npm run dev",
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "build": "cd frontend && npm run build",
+    "deploy:render": "cd backend && render deploy",
+    "deploy:vercel": "cd frontend && vercel"
+  },
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "keywords": [
+    "resume",
+    "ai",
+    "analysis"
+  ],
+  "author": "Siddharth Reddy",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^7.6.0"
+  }
+} 
