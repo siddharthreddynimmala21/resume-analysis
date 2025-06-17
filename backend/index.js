@@ -8,6 +8,7 @@ import mongoose from 'mongoose';
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import resumeRoutes from './routes/resume.js';
 
 // Validate critical environment variables
 const requiredEnvVars = ['JWT_SECRET', 'EMAIL_USER', 'EMAIL_PASSWORD'];
@@ -114,6 +115,7 @@ app.post('/api/chat', async (req, res) => {
 // Routes
 import authRouter from './routes/auth.js';
 app.use('/api/auth', authRouter);
+app.use('/api/resume', resumeRoutes);
 
 // Error handling
 app.use((err, req, res, next) => {

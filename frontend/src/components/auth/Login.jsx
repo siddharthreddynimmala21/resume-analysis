@@ -28,7 +28,7 @@ export default function Login() {
         const response = await login(values.email, values.password);
         authLogin(response.token);
         toast.success('Login successful!');
-        navigate('/chat');
+        navigate('/dashboard');
       } catch (error) {
         toast.error(error.response?.data?.message || 'Login failed');
       } finally {

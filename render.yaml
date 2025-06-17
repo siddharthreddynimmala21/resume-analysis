@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: resume-analysis-backend
+    env: node
+    region: oregon
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && npm start
+    envVars:
+      - key: MONGODB_URI
+        fromService:
+          name: resume-mongodb
+          type: pserv
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASSWORD
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: PORT
+        value: 3001
+
+  - type: pserv
+    name: resume-mongodb
+    engine: mongodb
+    region: oregon
+    plan: free
+    ipAllowList: [] 

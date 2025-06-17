@@ -7,6 +7,8 @@ import Register from './components/auth/Register';
 import VerifyOTP from './components/auth/VerifyOTP';
 import SetupPassword from './components/auth/SetupPassword';
 import Chat from './components/Chat';
+import Dashboard from './components/Dashboard';
+import ResumeAnalysis from './components/ResumeAnalysis';
 
 function App() {
   return (
@@ -19,6 +21,14 @@ function App() {
           <Route path="/verify-otp" element={<VerifyOTP />} />
           <Route path="/setup-password" element={<SetupPassword />} />
           <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/chat"
             element={
               <ProtectedRoute>
@@ -26,7 +36,15 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="/" element={<Navigate to="/chat" replace />} />
+          <Route
+            path="/resume-analysis"
+            element={
+              <ProtectedRoute>
+                <ResumeAnalysis />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </AuthProvider>
     </Router>

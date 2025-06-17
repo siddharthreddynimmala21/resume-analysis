@@ -6,6 +6,7 @@ import ChatMessage from './chat/ChatMessage';
 import ChatInput from './chat/ChatInput';
 import { sendMessage } from '../services/api';
 import ConfirmationDialog from './common/ConfirmationDialog';
+import Navigation from './common/Navigation';
 
 export default function Chat() {
   const [messages, setMessages] = useState([]);
@@ -68,7 +69,10 @@ export default function Chat() {
       >
         {/* Header */}
         <div className="p-4 border-b border-white/20 flex justify-between items-center">
-          <h1 className="text-xl sm:text-2xl font-bold text-white">AI Chat</h1>
+          <div className="flex items-center space-x-4">
+            <Navigation />
+            <h1 className="text-xl sm:text-2xl font-bold text-white">AI Chat</h1>
+          </div>
           <button
             onClick={() => setShowLogoutConfirm(true)}
             className="flex items-center space-x-2 px-3 py-2 rounded-lg text-white/70 hover:bg-white/20 hover:text-white transition-colors duration-300"
