@@ -9,7 +9,7 @@
     "start:frontend": "cd frontend && npm run dev",
     "install:backend": "cd backend && npm install",
     "install:frontend": "cd frontend && npm install",
-    "install": "npm run install:backend && npm run install:frontend",
+    "install": "cd backend && npm install && cd ../frontend && npm install",
     "build:frontend": "cd frontend && npm run build",
     "build": "npm run build:frontend",
     "deploy:render": "npm run install && npm run build"
