@@ -1,6 +1,6 @@
 import express from 'express';
 import multer from 'multer';
-import pdfParse from 'pdf-parse';
+import pdfParse from '../pdf-parse-patch.js';
 
 const router = express.Router();
 const upload = multer({ 
@@ -9,16 +9,6 @@ const upload = multer({
     fileSize: 10 * 1024 * 1024 // 10MB file size limit
   }
 });
-
-// Prevent pdf-parse from trying to read test file
-try {
-  const originalPdfParse = pdfParse;
-  pdfParse = (dataBuffer) => {
-    return originalPdfParse(dataBuffer);
-  };
-} catch (error) {
-  console.error('PDF Parse initialization prevented:', error);
-}
 
 /**
  * Middleware to log detailed request information
