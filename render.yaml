@@ -2,29 +2,35 @@ services:
   - type: web
     name: resume-analysis-backend
     env: node
-    region: oregon
-    branch: main
-    buildCommand: |
-      echo "Current directory: $(pwd)"
-      cd backend
-      echo "Installing backend dependencies..."
-      npm ci
-      echo "Backend dependencies installed"
-    startCommand: cd backend && npm start
+    plan: free
+    buildCommand: npm install
+    startCommand: npm run start:backend
     envVars:
-      - key: PORT
-        value: 5000
+      - key: NODE_VERSION
+        value: 18.0.0
       - key: MONGODB_URI
         fromDatabase:
           name: resume-db
           property: connectionString
       - key: JWT_SECRET
         generateValue: true
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASSWORD
+        sync: false
       - key: GEMINI_API_KEY
         sync: false
+      - key: PORT
+        value: 3001
 
 databases:
   - name: resume-db
+    plan: free
+    ipAllowList: []  # Restrict IP access as needed
+
+  - type: pserv
+    name: resume-mongodb
+    engine: mongodb
     region: oregon
-    ipAllowList: []  # You'll need to add your IP or set to [] for full access
-    plan: free 
+    plan: free
+    ipAllowList: [] 
