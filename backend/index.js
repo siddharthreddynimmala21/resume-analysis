@@ -9,6 +9,7 @@ import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/ge
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import resumeRoutes from './routes/resume.js';
+import pdf from 'pdf-parse';
 
 // Validate critical environment variables
 const requiredEnvVars = ['JWT_SECRET', 'EMAIL_USER', 'EMAIL_PASSWORD'];
@@ -170,3 +171,15 @@ process.on('uncaughtException', (err) => {
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
+
+// Add this near the top of the file
+try {
+  // Attempt to override pdf-parse initialization
+  const originalPdfParse = pdf;
+  pdf = (dataBuffer) => {
+    // Remove or mock any file system operations
+    return originalPdfParse(dataBuffer);
+  };
+} catch (error) {
+  console.error('PDF Parse initialization error:', error);
+}
