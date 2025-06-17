@@ -4,7 +4,10 @@ services:
     env: node
     region: oregon
     branch: main
-    buildCommand: npm run install
+    buildCommand: |
+      npm install
+      npm run install:backend
+      npm run build
     startCommand: npm run start:backend
     envVars:
       - key: PORT
