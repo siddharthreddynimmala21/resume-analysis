@@ -5,10 +5,12 @@ services:
     region: oregon
     branch: main
     buildCommand: |
-      npm install
-      npm run install:backend
-      npm run build
-    startCommand: npm run start:backend
+      echo "Current directory: $(pwd)"
+      cd backend
+      echo "Installing backend dependencies..."
+      npm ci
+      echo "Backend dependencies installed"
+    startCommand: cd backend && npm start
     envVars:
       - key: PORT
         value: 5000

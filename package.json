@@ -7,12 +7,12 @@
     "start": "npm run start:backend",
     "start:backend": "cd backend && npm start",
     "start:frontend": "cd frontend && npm run dev",
-    "install:backend": "cd backend && echo 'Installing backend dependencies...' && npm ci || (echo 'Backend install failed' && exit 1)",
-    "install:frontend": "cd frontend && echo 'Installing frontend dependencies...' && npm ci || (echo 'Frontend install failed' && exit 1)",
-    "install": "echo 'Starting root installation...' && npm ci && echo 'Root dependencies installed' && npm run install:backend && npm run install:frontend",
+    "install:backend": "cd backend && npm ci",
+    "install:frontend": "cd frontend && npm ci",
+    "install": "npm ci",
     "build:frontend": "cd frontend && npm run build",
     "build": "npm run build:frontend",
-    "deploy:render": "npm run install && npm run build"
+    "deploy:render": "npm run install:backend"
   },
   "workspaces": [
     "frontend",
